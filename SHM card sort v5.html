@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Physics 12 SHM Terminology Card Sort</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; color: #1f2937; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { margin: 0 0 6px; color: #1f4e78; font-size: 28px; }
+  h2 { color: #1f4e78; margin-top: 0; }
+  .sub { color: #4b5563; margin-bottom: 16px; line-height: 1.4; }
+  .panel { background: white; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.08); padding: 18px; margin-bottom: 18px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  button { border: 0; border-radius: 10px; padding: 10px 14px; font-size: 15px; cursor: pointer; background: #1f4e78; color: white; }
+  button.secondary { background: #e5eef7; color: #1f4e78; }
+  .score { font-weight: 700; }
+  .legend { font-size: 14px; color: #374151; line-height: 1.7; }
+  .activity-overview { margin: 0; padding-left: 20px; }
+  .activity-overview li { margin: 2px 0; }
+  .activity-overview strong { color: #1f4e78; }
+  .hint { margin-top: 8px; font-size: 14px; color: #4b5563; line-height: 1.45; }
+
+  .bank, .zone { min-height: 120px; border-radius: 14px; padding: 14px; }
+  .bank { border: 2px dashed #cbd5e1; background: #f8fafc; margin-bottom: 16px; }
+  .zone { border: 2px solid #dbe4ee; background: #fbfdff; }
+  .zone.drop-hover { border-color: #3b82f6; background: #f0f7ff; }
+  .zone h3, .bank h3 { margin: 0 0 10px; font-size: 18px; }
+  .zones { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cards { display: flex; flex-wrap: wrap; gap: 10px; min-height: 70px; }
+  .card {
+    background: #fff8dc; border: 1px solid #e8d691; border-radius: 12px; padding: 10px 12px;
+    width: 220px; box-shadow: 0 2px 8px rgba(0,0,0,.05); cursor: grab; user-select: none;
+    line-height: 1.3;
+  }
+  .card:active { cursor: grabbing; }
+  .card.selected { background: #dbeafe; border-color: #3b82f6; outline: 2px solid rgba(59,130,246,.25); }
+  .card.correct, .match-item.correct, .blank-select.correct { background: #e9f8ec; border-color: #8ac99b; }
+  .card.incorrect, .match-item.incorrect, .blank-select.incorrect { background: #fdecec; border-color: #d8a3a3; }
+
+  .match-area { position: relative; display: grid; grid-template-columns: 1fr 1.25fr; gap: 28px; margin-top: 14px; }
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+  .match-item {
+    border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; background: #f8fafc;
+    cursor: pointer; min-height: 42px; display: flex; align-items: center; line-height: 1.3;
+  }
+  .match-item.selected { background: #dbeafe; border-color: #3b82f6; outline: 2px solid rgba(59,130,246,.25); }
+  .match-item.matched { background: #fff8dc; border-color: #e8d691; }
+  #matchLines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+
+  .fill-grid { display: grid; gap: 12px; margin-top: 12px; }
+  .fill-item { background: #f8fafc; border: 1px solid #dbe4ee; border-radius: 12px; padding: 12px; line-height: 1.5; }
+  .blank-select { font-size: 15px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; min-width: 180px; }
+
+  @media (max-width: 850px) {
+    .zones, .match-area { grid-template-columns: 1fr; }
+    .card { width: 100%; }
+    #matchLines { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Physics 12 SHM Terminology Card Sort</h1>
+  <div class="sub">Relevant topic: Simple Harmonic Motion (SHM). Match, sort, and complete the key ideas.</div>
+
+  <div class="panel">
+    <div class="controls">
+      <button id="checkBtn">Check answers</button>
+      <button id="resetBtn" class="secondary">Reset</button>
+      <span class="score" id="scoreText">Score: 0 / 16</span>
+    </div>
+    <div class="legend">
+      <p style="margin: 0 0 4px;"><strong>Activity overview</strong></p>
+      <ul class="activity-overview">
+        <li><strong>Part A:</strong> matching</li>
+        <li><strong>Part B:</strong> sorting</li>
+        <li><strong>Part C:</strong> fill in the blanks</li>
+        <li>Works offline after download</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Part A: Match the motion and position terms</h2>
+    <p class="hint">Click a term on the left, then click its best meaning on the right. Click a matched pair again to change it.</p>
+    <div class="match-area" id="matchArea">
+      <svg id="matchLines"></svg>
+      <div class="match-col" id="leftMatches"></div>
+      <div class="match-col" id="rightMatches"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Part B: Time, cycles, and rates</h2>
+    <p class="hint">Sort the time/cycle terms separately from the rate terms. Frequency is a rate because it tells how many oscillations occur each second.</p>
+    <div class="bank"><h3>Cards</h3><div class="cards" id="bankB"></div></div>
+    <div class="zones">
+      <div class="zone" data-category="timeB"><h3>Time and cycles</h3><div class="cards"></div></div>
+      <div class="zone" data-category="rateB"><h3>Rates</h3><div class="cards"></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Part C: Complete the SHM ideas</h2>
+    <p class="hint">Choose the term that makes each sentence correct.</p>
+    <div class="fill-grid">
+      <div class="fill-item">In SHM, the object moves back and forth around the <select class="blank-select" data-answer="equilibrium position"></select>.</div>
+      <div class="fill-item">The largest displacement from the centre of the motion is called the <select class="blank-select" data-answer="amplitude"></select>.</div>
+      <div class="fill-item">A force that points back toward the centre of the motion is a <select class="blank-select" data-answer="restoring force"></select>.</div>
+      <div class="fill-item">At the equilibrium position, the speed is usually at its <select class="blank-select" data-answer="maximum"></select>.</div>
+      <div class="fill-item">At maximum displacement, the velocity is momentarily <select class="blank-select" data-answer="zero"></select>.</div>
+      <div class="fill-item">As energy changes form during SHM, kinetic energy and potential energy trade back and forth while total mechanical energy is approximately <select class="blank-select" data-answer="conserved"></select>.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Reflect</h2>
+    <p class="hint"><strong>Which terms are easiest to mix up, and how can we tell them apart?</strong></p>
+  </div>
+</div>
+
+<script>
+const matchTerms = [
+  { id: 'm1', text: 'equilibrium position', answer: 'd1' },
+  { id: 'm2', text: 'displacement', answer: 'd2' },
+  { id: 'm3', text: 'amplitude', answer: 'd3' },
+  { id: 'm4', text: 'cycle', answer: 'd4' }
+];
+
+const matchDefinitions = [
+  { id: 'd1', text: 'the centre position of the motion' },
+  { id: 'd2', text: 'position measured from the equilibrium position, including direction' },
+  { id: 'd3', text: 'maximum displacement from the equilibrium position' },
+  { id: 'd4', text: 'one complete repetition of the motion' }
+];
+
+const partB = [
+  { id: 'b1', text: 'time', category: 'timeB' },
+  { id: 'b2', text: 'period', category: 'timeB' },
+  { id: 'b3', text: 'frequency', category: 'rateB' },
+  { id: 'b4', text: 'speed', category: 'rateB' },
+  { id: 'b5', text: 'velocity', category: 'rateB' },
+  { id: 'b6', text: 'acceleration', category: 'rateB' }
+];
+
+const blankOptions = ['amplitude', 'conserved', 'equilibrium position', 'maximum', 'restoring force', 'zero'];
+let selectedCard = null;
+let selectedMatch = null;
+let matches = {};
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function makeCard(card) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.draggable = true;
+  div.id = card.id;
+  div.dataset.answer = card.category;
+  div.textContent = card.text;
+  div.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', card.id);
+    selectedCard = null;
+    clearSelectedCards();
+  });
+  div.addEventListener('click', () => {
+    clearSelectedCards();
+    selectedCard = div;
+    div.classList.add('selected');
+  });
+  return div;
+}
+
+function clearSelectedCards() {
+  document.querySelectorAll('.card.selected').forEach(card => card.classList.remove('selected'));
+}
+
+function fillBank(bankId, cards) {
+  const bank = document.getElementById(bankId);
+  bank.innerHTML = '';
+  shuffle(cards).forEach(card => bank.appendChild(makeCard(card)));
+}
+
+function placeCardIn(target, card) {
+  const cardsWrap = target.classList.contains('cards') ? target : target.querySelector('.cards');
+  cardsWrap.appendChild(card);
+}
+
+function enableDrop(target) {
+  target.addEventListener('dragover', e => {
+    e.preventDefault();
+    target.classList.add('drop-hover');
+  });
+  target.addEventListener('dragleave', () => target.classList.remove('drop-hover'));
+  target.addEventListener('drop', e => {
+    e.preventDefault();
+    target.classList.remove('drop-hover');
+    const id = e.dataTransfer.getData('text/plain');
+    const card = document.getElementById(id);
+    if (card) placeCardIn(target, card);
+  });
+  target.addEventListener('click', e => {
+    const clickedCard = e.target.closest('.card');
+    if (clickedCard) return;
+    if (selectedCard) {
+      placeCardIn(target, selectedCard);
+      selectedCard.classList.remove('selected');
+      selectedCard = null;
+    }
+  });
+}
+
+function setupMatching() {
+  selectedMatch = null;
+  matches = {};
+  const left = document.getElementById('leftMatches');
+  const right = document.getElementById('rightMatches');
+  left.innerHTML = '';
+  right.innerHTML = '';
+  shuffle(matchTerms).forEach(item => left.appendChild(makeMatchItem(item, 'left')));
+  shuffle(matchDefinitions).forEach(item => right.appendChild(makeMatchItem(item, 'right')));
+  drawLines();
+}
+
+function makeMatchItem(item, side) {
+  const div = document.createElement('div');
+  div.className = 'match-item';
+  div.id = item.id;
+  div.dataset.side = side;
+  if (item.answer) div.dataset.answer = item.answer;
+  div.textContent = item.text;
+  div.addEventListener('click', () => handleMatchClick(div));
+  return div;
+}
+
+function handleMatchClick(item) {
+  document.querySelectorAll('.match-item').forEach(el => el.classList.remove('correct', 'incorrect'));
+
+  const side = item.dataset.side;
+  if (side === 'left') {
+    if (matches[item.id]) delete matches[item.id];
+    document.querySelectorAll('.match-item.selected').forEach(el => el.classList.remove('selected'));
+    selectedMatch = item;
+    item.classList.add('selected');
+  } else if (selectedMatch && selectedMatch.dataset.side === 'left') {
+    for (const leftId of Object.keys(matches)) {
+      if (matches[leftId] === item.id) delete matches[leftId];
+    }
+    matches[selectedMatch.id] = item.id;
+    selectedMatch.classList.remove('selected');
+    selectedMatch = null;
+  } else {
+    const existingLeft = Object.keys(matches).find(leftId => matches[leftId] === item.id);
+    if (existingLeft) delete matches[existingLeft];
+  }
+  markMatchedItems();
+  drawLines();
+}
+
+function markMatchedItems() {
+  document.querySelectorAll('.match-item').forEach(el => el.classList.remove('matched'));
+  Object.entries(matches).forEach(([leftId, rightId]) => {
+    const left = document.getElementById(leftId);
+    const right = document.getElementById(rightId);
+    if (left) left.classList.add('matched');
+    if (right) right.classList.add('matched');
+  });
+}
+
+function drawLines() {
+  const svg = document.getElementById('matchLines');
+  const area = document.getElementById('matchArea');
+  svg.innerHTML = '';
+  if (!area || window.innerWidth <= 850) return;
+  const areaRect = area.getBoundingClientRect();
+  Object.entries(matches).forEach(([leftId, rightId]) => {
+    const left = document.getElementById(leftId);
+    const right = document.getElementById(rightId);
+    if (!left || !right) return;
+    const l = left.getBoundingClientRect();
+    const r = right.getBoundingClientRect();
+    const x1 = l.right - areaRect.left;
+    const y1 = l.top + l.height / 2 - areaRect.top;
+    const x2 = r.left - areaRect.left;
+    const y2 = r.top + r.height / 2 - areaRect.top;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', '#1f4e78');
+    line.setAttribute('stroke-width', '3');
+    line.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(line);
+  });
+}
+
+function setupBlanks() {
+  document.querySelectorAll('.blank-select').forEach(select => {
+    select.innerHTML = '<option value="">Choose a term...</option>';
+    shuffle(blankOptions).forEach(option => {
+      const opt = document.createElement('option');
+      opt.value = option;
+      opt.textContent = option;
+      select.appendChild(opt);
+    });
+    select.classList.remove('correct', 'incorrect');
+  });
+}
+
+function setup() {
+  selectedCard = null;
+  document.querySelectorAll('.zone .cards').forEach(z => z.innerHTML = '');
+  fillBank('bankB', partB);
+  setupMatching();
+  setupBlanks();
+  document.getElementById('scoreText').textContent = 'Score: 0 / 16';
+}
+
+function checkAnswers() {
+  let score = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    card.classList.remove('correct', 'incorrect', 'selected');
+    const zone = card.closest('.zone');
+    if (!zone) return;
+    if (zone.dataset.category === card.dataset.answer) {
+      card.classList.add('correct');
+      score++;
+    } else {
+      card.classList.add('incorrect');
+    }
+  });
+
+  document.querySelectorAll('.match-item').forEach(el => el.classList.remove('correct', 'incorrect', 'selected'));
+  matchTerms.forEach(term => {
+    const left = document.getElementById(term.id);
+    const right = document.getElementById(matches[term.id]);
+    if (matches[term.id] === term.answer) {
+      score++;
+      if (left) left.classList.add('correct');
+      if (right) right.classList.add('correct');
+    } else if (matches[term.id]) {
+      if (left) left.classList.add('incorrect');
+      if (right) right.classList.add('incorrect');
+    }
+  });
+
+  document.querySelectorAll('.blank-select').forEach(select => {
+    select.classList.remove('correct', 'incorrect');
+    if (select.value === select.dataset.answer) {
+      select.classList.add('correct');
+      score++;
+    } else if (select.value) {
+      select.classList.add('incorrect');
+    }
+  });
+
+  selectedCard = null;
+  selectedMatch = null;
+  document.getElementById('scoreText').textContent = `Score: ${score} / 16`;
+}
+
+window.addEventListener('resize', drawLines);
+document.querySelectorAll('.zone').forEach(enableDrop);
+document.querySelectorAll('.bank').forEach(enableDrop);
+document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+document.getElementById('resetBtn').addEventListener('click', setup);
+setup();
+</script>
+</body>
+</html>
